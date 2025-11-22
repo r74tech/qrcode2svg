@@ -38,8 +38,8 @@ export function isModuleInLogoRegion(
   if (logoMaskData.moduleGrid && logoMaskData.gridOrigin && logoMaskData.moduleSize) {
     const { moduleGrid, gridOrigin, moduleSize: logoModuleSize } = logoMaskData;
 
-    const gridX = Math.floor((moduleX - gridOrigin.x) / logoModuleSize);
-    const gridY = Math.floor((moduleY - gridOrigin.y) / logoModuleSize);
+    const gridX = Math.round((moduleX - gridOrigin.x) / logoModuleSize);
+    const gridY = Math.round((moduleY - gridOrigin.y) / logoModuleSize);
 
     if (gridY >= 0 && gridY < moduleGrid.length && gridX >= 0 && gridX < moduleGrid[0].length) {
       return moduleGrid[gridY][gridX];

@@ -60,8 +60,8 @@ export async function analyzeLogoTransparency(
         const offset = paddingModules * moduleSize;
         resizedCtx.drawImage(innerCanvas, offset, offset);
 
-        const logoX = Math.floor((svgSize - logoPixelSize) / 2 / moduleSize) * moduleSize;
-        const logoY = Math.floor((svgSize - logoPixelSize) / 2 / moduleSize) * moduleSize;
+        const logoX = Math.round((svgSize - logoPixelSize) / 2 / moduleSize) * moduleSize;
+        const logoY = Math.round((svgSize - logoPixelSize) / 2 / moduleSize) * moduleSize;
 
         const opaqueModules: boolean[][] = [];
         let hasTransparency = false;

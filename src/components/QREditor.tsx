@@ -18,7 +18,8 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
     dotsType: 'square',
     cornersSquareType: 'square',
     isTransparent: false,
-    logoImage: ''
+    logoImage: '',
+    debugMode: false
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -134,8 +135,10 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
   const handleDownload = (format: 'svg' | 'png' | 'jpeg') => {
     if (!customSvg) return;
 
+    const downloadSvg = generateCustomizableSVG(scannedBitmap, { ...options, debugMode: false }, effectiveLogoMaskData);
+
     if (format === 'svg') {
-      const blob = new Blob([customSvg], { type: 'image/svg+xml' });
+      const blob = new Blob([downloadSvg], { type: 'image/svg+xml' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -148,7 +151,7 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
       if (!ctx) return;
 
       const img = new Image();
-      const svgBlob = new Blob([customSvg], { type: 'image/svg+xml;charset=utf-8' });
+      const svgBlob = new Blob([downloadSvg], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(svgBlob);
 
       img.onload = () => {
@@ -377,7 +380,7 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
                         onChange={(e) => setOptions({ ...options, logoSize: Number.parseInt(e.target.value) / 100 })}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
                       >
-                        {scannedBitmap.length > 0 && [10, 15, 20, 25, 30, 35, 40].map(percent => {
+                        {scannedBitmap.length > 0 && [15, 20, 25, 30, 35].map(percent => {
                           const targetModules = Math.round(scannedBitmap.length * (percent / 100));
                           const modules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
                           return (
@@ -391,13 +394,25 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        setOptions({ ...options, logoImage: '', logoSize: 0.2 });
+                        setOptions({ ...options, logoImage: '', logoSize: 0.2, debugMode: false });
                         if (logoInputRef.current) logoInputRef.current.value = '';
                       }}
                       className="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline"
                     >
                       ロゴを削除
                     </button>
+                    <div className="mt-4">
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={options.debugMode || false}
+                          onChange={(e) => setOptions({ ...options, debugMode: e.target.checked })}
+                          className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">デバッグモードを表示</span>
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">ロゴの切り抜きパスを赤線で表示します</p>
+                    </div>
                     <div className="mt-4">
                       <p className="text-sm text-gray-500 dark:text-gray-400">ロゴ画像の大きさによってはQRコードが読み取れない場合があります。<br />QRコードリーダーなどでの確認をお勧めします。</p>
                     </div>

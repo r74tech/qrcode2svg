@@ -49,13 +49,14 @@ export function generateCustomizableSVG(
   }
 
   let logoElement = '';
+  let debugElement = '';
   if (options.logoImage && logoMaskData) {
     const logoSize = options.logoSize || 0.2;
     const targetModules = Math.round(size * logoSize);
     const logoModules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
     const logoPixelSize = logoModules * moduleSize;
-    const logoX = ((totalSize - logoModules) / 2) * moduleSize;
-    const logoY = ((totalSize - logoModules) / 2) * moduleSize;
+    const logoX = Math.round((totalSize - logoModules) / 2) * moduleSize;
+    const logoY = Math.round((totalSize - logoModules) / 2) * moduleSize;
 
     const logoBgFill = logoMaskData.hasTransparency ? bgColor : bgColor;
 
@@ -63,13 +64,37 @@ export function generateCustomizableSVG(
       <path d="${logoMaskData.svgPath}" fill="${logoBgFill}" />
       <image href="${options.logoImage}" x="${logoX}" y="${logoY}" width="${logoPixelSize}" height="${logoPixelSize}" />
     `;
+
+    if (options.debugMode && logoMaskData.moduleGrid && logoMaskData.gridOrigin) {
+      const debugPaths: string[] = [];
+      const gridRows = logoMaskData.moduleGrid.length;
+      const gridCols = logoMaskData.moduleGrid[0]?.length || 0;
+
+      for (let ry = 0; ry < gridRows; ry++) {
+        for (let rx = 0; rx < gridCols; rx++) {
+          const x = logoMaskData.gridOrigin.x + rx * moduleSize;
+          const y = logoMaskData.gridOrigin.y + ry * moduleSize;
+
+          if (logoMaskData.moduleGrid[ry][rx]) {
+            debugPaths.push(`<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" fill="rgba(255, 0, 255, 0.3)" stroke="blue" stroke-width="0.5"/>`);
+          } else {
+            debugPaths.push(`<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" fill="none" stroke="green" stroke-width="0.5" stroke-dasharray="2,2"/>`);
+          }
+        }
+      }
+
+      debugElement = `
+        <path d="${logoMaskData.svgPath}" fill="rgba(255, 0, 0, 0.3)" stroke="red" stroke-width="2"/>
+        ${debugPaths.join('\n        ')}
+      `;
+    }
   } else if (options.logoImage) {
     const logoSize = options.logoSize || 0.2;
     const targetModules = Math.round(size * logoSize);
     const logoModules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
     const logoPixelSize = logoModules * moduleSize;
-    const logoX = ((totalSize - logoModules) / 2) * moduleSize;
-    const logoY = ((totalSize - logoModules) / 2) * moduleSize;
+    const logoX = Math.round((totalSize - logoModules) / 2) * moduleSize;
+    const logoY = Math.round((totalSize - logoModules) / 2) * moduleSize;
     const bgRadius = logoPixelSize / 2 + moduleSize;
 
     logoElement = `
@@ -83,5 +108,6 @@ export function generateCustomizableSVG(
   <rect width="${svgSize}" height="${svgSize}" fill="${bgColor}"/>
   ${shapes}
   ${logoElement}
+  ${debugElement}
 </svg>`;
 }

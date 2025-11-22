@@ -6,6 +6,7 @@ export interface CustomQROptions {
   isTransparent: boolean;
   logoImage?: string;
   logoSize?: number;
+  debugMode?: boolean;
 }
 
 export interface LogoMaskData {
