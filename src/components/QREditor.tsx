@@ -21,15 +21,19 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
     logoImage: ''
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const effectiveLogoMaskData = useMemo(() => {
+    return options.logoImage ? logoMaskData : undefined;
+  }, [options.logoImage, logoMaskData]);
 
   const customSvg = useMemo(() => {
     if (scannedBitmap.length === 0) {
       return '';
     }
-    const effectiveLogoMaskData = options.logoImage ? logoMaskData : undefined;
     return generateCustomizableSVG(scannedBitmap, options, effectiveLogoMaskData);
-  }, [scannedBitmap, options, logoMaskData]);
+  }, [scannedBitmap, options, effectiveLogoMaskData]);
 
   useEffect(() => {
     if (!options.logoImage || scannedBitmap.length === 0) {
@@ -53,7 +57,6 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
       .catch((err) => {
         if (!cancelled) {
           console.error('Failed to analyze logo transparency:', err);
-          setLogoMaskData(undefined);
         }
       });
 
@@ -345,6 +348,7 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300" htmlFor="logo-image">ロゴ画像</label>
                 <input
+                  ref={logoInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleLogoUpload}
@@ -379,11 +383,17 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setOptions({ ...options, logoImage: '', logoSize: 0.2 })}
+                      onClick={() => {
+                        setOptions({ ...options, logoImage: '', logoSize: 0.2 });
+                        if (logoInputRef.current) logoInputRef.current.value = '';
+                      }}
                       className="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline"
                     >
                       ロゴを削除
                     </button>
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">ロゴ画像の大きさによってはQRコードが読み取れない場合があります。<br />QRコードリーダーなどでの確認をお勧めします。</p>
+                    </div>
                   </>
                 )}
               </div>
