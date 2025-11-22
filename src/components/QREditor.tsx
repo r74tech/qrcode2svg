@@ -365,20 +365,27 @@ export default function QREditor({ scannedBitmap, onScan }: QREditorProps) {
                   <>
                     <div className="mt-4">
                       <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300" htmlFor="logo-size">
-                        ロゴサイズ: {Math.round((options.logoSize || 0.2) * 100)}%
+                        ロゴサイズ: {(() => {
+                          const qrModules = scannedBitmap.length;
+                          const targetModules = Math.round(qrModules * (options.logoSize || 0.2));
+                          const logoModules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
+                          return `${logoModules}×${logoModules}マス`;
+                        })()}
                       </label>
                       <select
                         value={(options.logoSize || 0.2) * 100}
                         onChange={(e) => setOptions({ ...options, logoSize: Number.parseInt(e.target.value) / 100 })}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="10">10% (極小)</option>
-                        <option value="15">15% (小)</option>
-                        <option value="20">20% (標準)</option>
-                        <option value="25">25% (中)</option>
-                        <option value="30">30% (大)</option>
-                        <option value="35">35% (特大)</option>
-                        <option value="40">40% (最大)</option>
+                        {scannedBitmap.length > 0 && [10, 15, 20, 25, 30, 35, 40].map(percent => {
+                          const targetModules = Math.round(scannedBitmap.length * (percent / 100));
+                          const modules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
+                          return (
+                            <option key={percent} value={percent}>
+                              {modules}×{modules}マス ({percent}%)
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                     <button

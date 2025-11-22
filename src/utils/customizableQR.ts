@@ -51,9 +51,11 @@ export function generateCustomizableSVG(
   let logoElement = '';
   if (options.logoImage && logoMaskData) {
     const logoSize = options.logoSize || 0.2;
-    const logoPixelSize = svgSize * logoSize;
-    const logoX = (svgSize - logoPixelSize) / 2;
-    const logoY = (svgSize - logoPixelSize) / 2;
+    const targetModules = Math.round(size * logoSize);
+    const logoModules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
+    const logoPixelSize = logoModules * moduleSize;
+    const logoX = ((totalSize - logoModules) / 2) * moduleSize;
+    const logoY = ((totalSize - logoModules) / 2) * moduleSize;
 
     const logoBgFill = logoMaskData.hasTransparency ? bgColor : bgColor;
 
@@ -63,9 +65,11 @@ export function generateCustomizableSVG(
     `;
   } else if (options.logoImage) {
     const logoSize = options.logoSize || 0.2;
-    const logoPixelSize = svgSize * logoSize;
-    const logoX = (svgSize - logoPixelSize) / 2;
-    const logoY = (svgSize - logoPixelSize) / 2;
+    const targetModules = Math.round(size * logoSize);
+    const logoModules = targetModules % 2 === 0 ? targetModules : targetModules + 1;
+    const logoPixelSize = logoModules * moduleSize;
+    const logoX = ((totalSize - logoModules) / 2) * moduleSize;
+    const logoY = ((totalSize - logoModules) / 2) * moduleSize;
     const bgRadius = logoPixelSize / 2 + moduleSize;
 
     logoElement = `
